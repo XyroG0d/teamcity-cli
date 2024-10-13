@@ -19,7 +19,7 @@ const DEFAULT_GIT_BRANCH = "main"
 const DEFAULT_INTERVAL = 5000
 const DEFAULT_UNTIL = 50000
 
-func intializeConfig() {
+func IntializeConfig() {
 	if gitBranch == "" {
 		gitBranch = DEFAULT_GIT_BRANCH
 	}

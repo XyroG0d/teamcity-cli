@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/XyroG0d/teamcity-cli/configManager"
 	"github.com/spf13/cobra"
 )
 
@@ -24,13 +25,35 @@ If configName and configValue are provided, this command sets the value to the g
 If --list is provided, this command lists down all the configurations
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Need to intialize a list of configs to set and show then to user")
+		//TODO: need to perform below logic when --list argument is passed
+		listFlag, _ := cmd.Flags().GetBool("list")
+		if len(args) == 0 {
+			if listFlag {
+				configSettings := configManager.ReadConfigMap()
+				for k, v := range configSettings {
+					fmt.Printf("%s=%s\n", k, v)
+				}
+			} else {
+				fmt.Println(cmd.Help())
+			}
+		} else {
+			configSettings := configManager.ReadConfigMap()
+			if len(args) == 1 {
+				dat := args[0] + "=" + configSettings[args[0]]
+				fmt.Println(dat) //TODO: need to add error handling if flag is not valid
+			} else if len(args) == 2 {
+				configSettings[args[0]] = args[1]
+				configManager.WriteConfig(configSettings)
+			} else {
+				panic("Too many arguments") // replace with print and exit command
+			}
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(configCmd)
-
+	configManager.CreateConfigFileIfNotExists()
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -39,5 +62,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// configCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	configCmd.Flags().BoolP("list", "l", false, "Displays all configurations")
 }
